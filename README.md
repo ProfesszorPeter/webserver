@@ -8,3 +8,26 @@ Ezen ötlet alapján kezdtünk mink is neki a feladatnak.
 
 Ezzel egyideűleg, egy kérdőívet is elindítunk, hogy felmérjük, hogy mi az emberek elméleti tudása a témában, és ezzel szembe állítjuk, hogy hányan fognak bele esni a mi csapdánkba.
 
+
+# Követelmény
+El is felejtettem leírni, hogy hogy tudja a nagyérdemű is kipróbálni a kis projektet.
+Én a **go.1.24.1**-es verziót használtam a kód írásához. 
+
+Ez szükséges a futtatáshoz is!
+
+```bash
+git clone https://github.com/ProfesszorPeter/webserver.git
+cd webserver
+go run main.go
+```
+
+Amennyiben az elveteműlt olvasó szeretne futtatható állomány készíteni:
+```bash
+git clone https://github.com/ProfesszorPeter/webserver.git
+cd webserver
+go build main.go
+./main
+```
+## TODO
+A későbbiekben lehet feltöltöm majd a futtatható állományt is, de nem gondolom, hogy az szükséges lenne.
+
