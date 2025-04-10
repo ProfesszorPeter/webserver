@@ -1,0 +1,55 @@
+<!-- static/index.html -->
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Felmérés – Korcsoport</title>
+  <style>
+    body { font-family: Arial; background: #f3f3f3; text-align: center; padding-top: 50px; }
+    h1 { color: #333; }
+    select { font-size: 16px; padding: 8px; margin-top: 20px; }
+    .response { margin-top: 20px; font-weight: bold; color: #2a7; }
+  </style>
+</head>
+<body>
+  <h1>Kérlek válaszd ki a korcsoportod!</h1>
+
+  <select id="ageGroup">
+    <option value="">-- Válassz korcsoportot --</option>
+    <option value="child">Gyermek (0-12)</option>
+    <option value="teen">Tinédzser (13-19)</option>
+    <option value="adult">Felnőtt (20-64)</option>
+    <option value="senior">Időskorú (65+)</option>
+  </select>
+
+  <div class="response" id="responseMessage"></div>
+
+  <script>
+    const ageSelect = document.getElementById('ageGroup');
+    const response = document.getElementById('responseMessage');
+
+    ageSelect.addEventListener('change', function () {
+      if (this.value) {
+        fetch('/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `ageGroup=${encodeURIComponent(this.value)}`
+        })
+        .then(res => res.text())
+        .then(msg => {
+          response.textContent = msg;
+        })
+        .catch(err => {
+          response.textContent = 'Hiba történt a beküldés során.';
+          console.error(err);
+        });
+      } else {
+        response.textContent = '';
+      }
+    });
+  </script>
+</body>
+</html>
+
