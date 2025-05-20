@@ -1,46 +1,19 @@
-///var/lib/webserver/survey_results.txt
-// A főbb részek maradnak ugyanazok
 package main
 
 import (
+	"cloud.google.com/go/storage"
+	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"sync"
-    "cloud.google.com/go/storage"
-	"context"
-	"io"
-	"time"
-
 )
 
 var (
 	visitorCount int
 	mu           sync.Mutex
 )
-
-// Írás Cloud Storage bucketbe
-func writeToBucket(bucketName, objectName, content string) error {
-	ctx := context.Background()
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		return fmt.Errorf("client: %v", err)
-	}
-	defer client.Close()
-
-	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
-	defer cancel()
-
-	wc := client.Bucket(bucketName).Object(objectName).NewWriter(ctx)
-	if _, err = io.WriteString(wc, content); err != nil {
-		return fmt.Errorf("write: %v", err)
-	}
-	if err := wc.Close(); err != nil {
-		return fmt.Errorf("close: %v", err)
-	}
-	return nil
-}
-
 
 func countMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -51,6 +24,8 @@ func countMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+// Felmérés válaszainak hozzáfűzése egy Cloud Storage fájlhoz
 func appendToBucketFile(bucketName, objectName, newLine string) error {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
@@ -62,7 +37,7 @@ func appendToBucketFile(bucketName, objectName, newLine string) error {
 	bkt := client.Bucket(bucketName)
 	obj := bkt.Object(objectName)
 
-	// 1. Meglévő fájl tartalmának beolvasása (ha létezik)
+	// Beolvasás, ha létezik
 	var currentContent string
 	reader, err := obj.NewReader(ctx)
 	if err == nil {
@@ -73,10 +48,8 @@ func appendToBucketFile(bucketName, objectName, newLine string) error {
 		}
 	}
 
-	// 2. Új tartalom összeállítása
+	// Összefűzés és újraírás
 	newContent := currentContent + newLine
-
-	// 3. Fájl felülírása az új tartalommal
 	writer := obj.NewWriter(ctx)
 	_, err = writer.Write([]byte(newContent))
 	if err != nil {
@@ -101,7 +74,7 @@ func submitHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Felmérés válasz érkezett: %s", ageGroup)
 
 	line := fmt.Sprintf("%s - %s\n", r.RemoteAddr, ageGroup)
-	err := appendToBucketFile("webserver-data", "/var/lib/webserver/valaszok.txt", line)
+	err := appendToBucketFile("szemetes", "felmeres/valaszok.txt", line)
 	if err != nil {
 		log.Printf("Hiba írás közben: %v", err)
 		http.Error(w, "Hiba a mentés közben", http.StatusInternalServerError)
@@ -112,9 +85,8 @@ func submitHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
 	// Statikus fájlok
-	fs := http.FileServer(http.Dir("/static"))
+	fs := http.FileServer(http.Dir("/app/static"))
 	http.Handle("/", countMiddleware(fs))
 
 	// Felmérés beküldésének kezelése

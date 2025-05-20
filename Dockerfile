@@ -1,14 +1,17 @@
 FROM golang
 
+WORKDIR /app
 
-COPY main.go /
-COPY static/ /static
+COPY go.mod ./
 
 EXPOSE 8000
 
+RUN go mod download
+
+COPY . .
+
+RUN go build -o /app/main /app/main.go
+
 VOLUME webserver-data:/var/lib/webserver
 
-RUN go get cloud.google.com/go/storage
-RUN go build -o /main /main.go
-
-ENTRYPOINT ["/main"]
+ENTRYPOINT ["/app/main"]

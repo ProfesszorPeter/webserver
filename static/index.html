@@ -1,57 +1,83 @@
 <!-- static/index.html -->
 <!DOCTYPE html>
 <html lang="hu">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Felmérés – Korcsoport</title>
-  <style>
-    body { font-family: Arial; background: #f3f3f3; text-align: center; padding-top: 50px; }
-    h1 { color: #333; }
-    select { font-size: 16px; padding: 8px; margin-top: 20px; }
-    .response { margin-top: 20px; font-weight: bold; color: #2a7; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Felmérés – Korcsoport</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f3f3f3;
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        select {
+            font-size: 16px;
+            padding: 8px;
+            margin-top: 20px;
+        }
+
+        .response {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #2a7;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Várj! Kérlek ne zárj be!\n
-    Csak válaszd ki a korcsoportod, a többit később elmagyarázom.</h1>
-  <h2>Kérlek válaszd ki a korcsoportod!</h2>
+    <h1>Várj! Kérlek ne zárj be!</h1>
+    <h2>Egy egyetemi projekthez készítünk felmérést arról, hogy mennyire tudatosak az emberek a kiberbiztonsággal
+        kapcsolatban.</h2>
+    <h2>Ez egy teljesen anonim "felmérés",amihez itt csak az életkorodat kell beállítanod.</h2>
+    <h2>Ha érdel az elméleti teszt is azt <a
+            href="https://docs.google.com/forms/d/1hr5DhcU5X5BzjXHai2ZKU_nXpeXM01kK-XeYdnRiwLE/viewform?edit_requested=true">
+            itt</a> találod</h2>
+    <h2>Kérlek válaszd ki a korcsoportod!</h2>
 
-  <select id="ageGroup">
-    <option value="">-- Válassz korcsoportot --</option>
-    <option value="child">Gyermek (0-12)</option>
-    <option value="teen">Tinédzser (13-19)</option>
-    <option value="adult">Felnőtt (20-64)</option>
-    <option value="senior">Időskorú (65+)</option>
-  </select>
+    <select id="ageGroup">
+        <option value="">-- Válassz korcsoportot --</option>
+        <option value="child">Gyermek (0-12)</option>
+        <option value="teen">Tinédzser (13-19)</option>
+        <option value="adult">Felnőtt (20-64)</option>
+        <option value="senior">Időskorú (65+)</option>
+    </select>
 
-  <div class="response" id="responseMessage"></div>
+    <div class="response" id="responseMessage"></div>
 
-  <script>
-    const ageSelect = document.getElementById('ageGroup');
-    const response = document.getElementById('responseMessage');
+    <script>
+        const ageSelect = document.getElementById('ageGroup');
+        const response = document.getElementById('responseMessage');
 
-    ageSelect.addEventListener('change', function () {
-      if (this.value) {
-        fetch('/submit', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: `ageGroup=${encodeURIComponent(this.value)}`
-        })
-        .then(res => res.text())
-        .then(msg => {
-          response.textContent = msg;
-        })
-        .catch(err => {
-          response.textContent = 'Hiba történt a beküldés során.';
-          console.error(err);
+        ageSelect.addEventListener('change', function () {
+            if (this.value) {
+                fetch('/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `ageGroup=${encodeURIComponent(this.value)}`
+                })
+                    .then(res => res.text())
+                    .then(msg => {
+                        response.textContent = msg;
+                    })
+                    .catch(err => {
+                        response.textContent = 'Hiba történt a beküldés során.';
+                        console.error(err);
+                    });
+            } else {
+                response.textContent = '';
+            }
         });
-      } else {
-        response.textContent = '';
-      }
-    });
-  </script>
+    </script>
+    <h5>(Se cirmi nem veszett el, és sajnos kiscicás képek sincsenek :( )</h5>
 </body>
-</html>
 
+</html>
